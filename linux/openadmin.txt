@@ -1,3 +1,4 @@
+//based on MrR3boot and IppSec
 //OpenNetAdmin -> command injection
 //47691.sh is the exploit
 tr -d '\r' < 47691.sh > 47691_fixed.sh		//deletes windows line breaks
