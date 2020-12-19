@@ -1,0 +1,4 @@
+search HFS
+windows/http/rejetto_hfs_exec				//set rhost
+multi/recon/local_exploit_suggester			//set session
+windows/local/ms16_032_secondary_logon_handle_privesc	//set session,lhost
