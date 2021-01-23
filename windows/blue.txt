@@ -1,0 +1,2 @@
+nmap --script safe -sC -sV -v -oN nmap_blue 10.10.10.40
+windows/smb/ms17_010_eternalblue	//metasploit
